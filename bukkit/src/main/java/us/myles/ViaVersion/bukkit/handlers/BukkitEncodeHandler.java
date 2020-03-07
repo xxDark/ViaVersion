@@ -6,7 +6,6 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.bukkit.util.NMSUtil;
 import us.myles.ViaVersion.exception.CancelException;
 import us.myles.ViaVersion.handlers.ChannelHandlerContextWrapper;
 import us.myles.ViaVersion.handlers.ViaHandler;
@@ -14,19 +13,7 @@ import us.myles.ViaVersion.packets.Direction;
 import us.myles.ViaVersion.protocols.base.ProtocolInfo;
 import us.myles.ViaVersion.util.PipelineUtil;
 
-import java.lang.reflect.Field;
-
 public class BukkitEncodeHandler extends MessageToByteEncoder implements ViaHandler {
-    private static Field versionField = null;
-
-    static {
-        try {
-            versionField = NMSUtil.nms("PacketEncoder").getDeclaredField("version");
-            versionField.setAccessible(true);
-        } catch (Exception e) {
-            // Not compat version
-        }
-    }
 
     private final UserConnection info;
     private final MessageToByteEncoder minecraftEncoder;
@@ -39,9 +26,6 @@ public class BukkitEncodeHandler extends MessageToByteEncoder implements ViaHand
 
     @Override
     protected void encode(final ChannelHandlerContext ctx, Object o, final ByteBuf bytebuf) throws Exception {
-        if (versionField != null) {
-            versionField.set(minecraftEncoder, versionField.get(this));
-        }
         // handle the packet type
         if (!(o instanceof ByteBuf)) {
             // call minecraft encoder

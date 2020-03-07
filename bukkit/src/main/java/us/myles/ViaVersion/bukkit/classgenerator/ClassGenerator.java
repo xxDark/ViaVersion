@@ -5,7 +5,6 @@ import javassist.expr.ConstructorCall;
 import javassist.expr.ExprEditor;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -30,35 +29,27 @@ public class ClassGenerator {
     }
 
     public static void generate() {
-        if (ViaVersion.getInstance().isCompatSpigotBuild() || ViaVersion.getInstance().isProtocolSupport()) {
+        if (ViaVersion.getInstance().isProtocolSupport()) {
             try {
                 ClassPool pool = ClassPool.getDefault();
                 for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
                     pool.insertClassPath(new LoaderClassPath(p.getClass().getClassLoader()));
                 }
 
-                if (ViaVersion.getInstance().isCompatSpigotBuild()) {
-                    Class decodeSuper = NMSUtil.nms("PacketDecoder");
-                    Class encodeSuper = NMSUtil.nms("PacketEncoder");
-                    // Generate the classes
-                    addSpigotCompatibility(pool, BukkitDecodeHandler.class, decodeSuper);
-                    addSpigotCompatibility(pool, BukkitEncodeHandler.class, encodeSuper);
+                // ProtocolSupport compatibility
+                Class encodeSuper;
+                Class decodeSuper;
+                if (isMultiplatformPS()) {
+                    psConnectListener = makePSConnectListener(pool, shouldUseNewHandshakeVersionMethod());
+                    return;
                 } else {
-                    // ProtocolSupport compatibility
-                    Class encodeSuper;
-                    Class decodeSuper;
-                    if (isMultiplatformPS()) {
-                        psConnectListener = makePSConnectListener(pool, shouldUseNewHandshakeVersionMethod());
-                        return;
-                    } else {
-                        String psPackage = getOldPSPackage();
-                        decodeSuper = Class.forName(psPackage.equals("unknown") ? "protocolsupport.protocol.pipeline.common.PacketDecoder" : psPackage + ".wrapped.WrappedDecoder");
-                        encodeSuper = Class.forName(psPackage.equals("unknown") ? "protocolsupport.protocol.pipeline.common.PacketEncoder" : psPackage + ".wrapped.WrappedEncoder");
-                    }
-                    // Generate the classes
-                    addPSCompatibility(pool, BukkitDecodeHandler.class, decodeSuper);
-                    addPSCompatibility(pool, BukkitEncodeHandler.class, encodeSuper);
+                    String psPackage = getOldPSPackage();
+                    decodeSuper = Class.forName(psPackage.equals("unknown") ? "protocolsupport.protocol.pipeline.common.PacketDecoder" : psPackage + ".wrapped.WrappedDecoder");
+                    encodeSuper = Class.forName(psPackage.equals("unknown") ? "protocolsupport.protocol.pipeline.common.PacketEncoder" : psPackage + ".wrapped.WrappedEncoder");
                 }
+                // Generate the classes
+                addPSCompatibility(pool, BukkitDecodeHandler.class, decodeSuper);
+                addPSCompatibility(pool, BukkitEncodeHandler.class, encodeSuper);
 
 
                 // Implement Constructor

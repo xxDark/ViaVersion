@@ -22,9 +22,7 @@ public class BukkitViaBulkChunkTranslator extends BulkChunkTranslatorProvider {
         try {
             mapChunkBulkRef = new ReflectionUtil.ClassReflection(NMSUtil.nms("PacketPlayOutMapChunkBulk"));
             mapChunkRef = new ReflectionUtil.ClassReflection(NMSUtil.nms("PacketPlayOutMapChunk"));
-            if (((ViaVersionPlugin) Via.getPlatform()).isSpigot()) {
-                obfuscateRef = Class.forName("org.spigotmc.AntiXray").getMethod("obfuscate", int.class, int.class, int.class, byte[].class, NMSUtil.nms("World"));
-            }
+            obfuscateRef = Class.forName("org.spigotmc.AntiXray").getMethod("obfuscate", int.class, int.class, int.class, byte[].class, NMSUtil.nms("World"));
         } catch (ClassNotFoundException e) {
             // Ignore as server is probably 1.9+
         } catch (Exception e) {

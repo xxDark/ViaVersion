@@ -110,7 +110,6 @@ public class BukkitViaAPI implements ViaAPI<Player>, ViaVersionAPI {
         return plugin.isCompatSpigotBuild();
     }
 
-
     @Override
     public boolean isSpigot() {
         return plugin.isSpigot();

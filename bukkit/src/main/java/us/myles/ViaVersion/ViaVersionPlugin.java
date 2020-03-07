@@ -18,7 +18,6 @@ import us.myles.ViaVersion.bukkit.classgenerator.ClassGenerator;
 import us.myles.ViaVersion.bukkit.commands.BukkitCommandHandler;
 import us.myles.ViaVersion.bukkit.commands.BukkitCommandSender;
 import us.myles.ViaVersion.bukkit.platform.*;
-import us.myles.ViaVersion.bukkit.util.NMSUtil;
 import us.myles.ViaVersion.dump.PluginInfo;
 import us.myles.ViaVersion.util.GsonUtil;
 
@@ -29,10 +28,8 @@ import java.util.UUID;
 public class ViaVersionPlugin extends JavaPlugin implements ViaPlatform {
 
     private BukkitCommandHandler commandHandler;
-    private boolean compatSpigotBuild = false;
-    private boolean spigot = true;
     private boolean lateBind = false;
-    private boolean protocolSupport = false;
+    private boolean protocolSupport;
     @Getter
     private BukkitViaConfig conf;
     @Getter
@@ -70,25 +67,11 @@ public class ViaVersionPlugin extends JavaPlugin implements ViaPlatform {
 
     @Override
     public void onLoad() {
-        // Spigot detector
-        try {
-            Class.forName("org.spigotmc.SpigotConfig");
-        } catch (ClassNotFoundException e) {
-            spigot = false;
-        }
-
-        // Check if it's a spigot build with a protocol mod
-        try {
-            compatSpigotBuild = NMSUtil.nms("PacketEncoder").getDeclaredField("version") != null;
-        } catch (Exception e) {
-            compatSpigotBuild = false;
-        }
-
         // Generate classes needed (only works if it's compat or ps)
         ClassGenerator.generate();
         lateBind = !BukkitViaInjector.isBound();
 
-        getLogger().info("ViaVersion " + getDescription().getVersion() + (compatSpigotBuild ? "compat" : "") + " is now loaded" + (lateBind ? ", waiting for boot. (late-bind)" : ", injecting!"));
+        getLogger().info("ViaVersion " + getDescription().getVersion() + " is now loaded" + (lateBind ? ", waiting for boot. (late-bind)" : ", injecting!"));
         if (!lateBind) {
             Via.getManager().init();
         }
@@ -102,11 +85,6 @@ public class ViaVersionPlugin extends JavaPlugin implements ViaPlatform {
 
         getCommand("viaversion").setExecutor(commandHandler);
         getCommand("viaversion").setTabCompleter(commandHandler);
-
-        // Warn them if they have anti-xray on and they aren't using spigot
-        if (conf.isAntiXRay() && !spigot) {
-            getLogger().info("You have anti-xray on in your config, since you're not using spigot it won't fix xray!");
-        }
 
         // Run queued tasks
         for (Runnable r : queuedTasks) {
@@ -127,12 +105,11 @@ public class ViaVersionPlugin extends JavaPlugin implements ViaPlatform {
     }
 
     public boolean isCompatSpigotBuild() {
-        return compatSpigotBuild;
+        return false;
     }
 
-
     public boolean isSpigot() {
-        return this.spigot;
+        return true;
     }
 
     public boolean isProtocolSupport() {
