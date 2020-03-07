@@ -14,9 +14,19 @@ import java.util.*;
  *
  * @param <E> List Type
  */
-public class ConcurrentList<E> extends ArrayList<E> {
+public final class SynhronizedArrayList<E> extends ArrayList<E> {
 
     private final Object lock = new Object();
+
+    public SynhronizedArrayList(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    public SynhronizedArrayList() { }
+
+    public SynhronizedArrayList(Collection<? extends E> c) {
+        super(c);
+    }
 
     @Override
     public boolean add(E e) {
@@ -57,7 +67,7 @@ public class ConcurrentList<E> extends ArrayList<E> {
     @SneakyThrows
     public Object clone() {
         synchronized (lock) {
-            ConcurrentList<E> clist = (ConcurrentList<E>) super.clone();
+            SynhronizedArrayList<E> clist = (SynhronizedArrayList<E>) super.clone();
             clist.modCount = 0;
             Field f = ArrayList.class.getDeclaredField("elementData");
             f.setAccessible(true);
@@ -179,12 +189,12 @@ public class ConcurrentList<E> extends ArrayList<E> {
 
         protected int cursor;
         protected int lastRet;
-        final ConcurrentList l;
+        final SynhronizedArrayList l;
 
         public Itr() {
             cursor = 0;
             lastRet = -1;
-            l = (ConcurrentList) ConcurrentList.this.clone();
+            l = (SynhronizedArrayList) SynhronizedArrayList.this.clone();
         }
 
         @Override
@@ -209,7 +219,7 @@ public class ConcurrentList<E> extends ArrayList<E> {
             }
 
             l.remove(lastRet);
-            ConcurrentList.this.remove(lastRet);
+            SynhronizedArrayList.this.remove(lastRet);
             cursor = lastRet;
             lastRet = -1;
         }
@@ -254,14 +264,14 @@ public class ConcurrentList<E> extends ArrayList<E> {
             }
 
             l.set(lastRet, e);
-            ConcurrentList.this.set(lastRet, e);
+            SynhronizedArrayList.this.set(lastRet, e);
         }
 
         @Override
         public void add(E e) {
             int i = cursor;
             l.add(i, e);
-            ConcurrentList.this.add(i, e);
+            SynhronizedArrayList.this.add(i, e);
             cursor = i + 1;
             lastRet = -1;
         }
