@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import io.netty.util.internal.RecyclableArrayList;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -28,14 +29,16 @@ public class VelocityEncodeHandler extends MessageToMessageEncoder<ByteBuf> {
 
     @Override
     protected void encode(final ChannelHandlerContext ctx, ByteBuf bytebuf, List<Object> out) throws Exception {
-        if (bytebuf.readableBytes() == 0) {
+        if (!bytebuf.isReadable()) {
             throw Via.getManager().isDebug() ? new CancelException() : CancelException.CACHED;
         }
         boolean needsCompress = false;
         if (!handledCompression
                 && ctx.pipeline().names().indexOf("compression-encoder") > ctx.pipeline().names().indexOf("via-encoder")) {
             // Need to decompress this packet due to bad order
-            bytebuf = (ByteBuf) PipelineUtil.callDecode((MessageToMessageDecoder) ctx.pipeline().get("compression-decoder"), ctx, bytebuf).get(0);
+            RecyclableArrayList list = PipelineUtil.callDecode((MessageToMessageDecoder) ctx.pipeline().get("compression-decoder"), ctx, bytebuf);
+            bytebuf = (ByteBuf) list.get(0);
+            list.recycle();
             ChannelHandler encoder = ctx.pipeline().get("via-encoder");
             ChannelHandler decoder = ctx.pipeline().get("via-decoder");
             ctx.pipeline().remove(encoder);
@@ -63,11 +66,9 @@ public class VelocityEncodeHandler extends MessageToMessageEncoder<ByteBuf> {
 
                 wrapper.writeToBuffer(newPacket);
 
-                bytebuf.clear();
                 bytebuf.release();
                 bytebuf = newPacket;
             } catch (Throwable e) {
-                bytebuf.clear();
                 bytebuf.release();
                 newPacket.release();
                 throw e;

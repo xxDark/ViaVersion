@@ -219,6 +219,8 @@ public class UserConnection {
             } catch (Exception e) {
                 // Should not happen
                 Via.getPlatform().getLogger().warning("Type.VAR_INT.write thrown an exception: " + e);
+                buf.release();
+                return;
             }
             buf.writeBytes(packet);
             final ChannelHandlerContext context = PipelineUtil
@@ -230,22 +232,16 @@ public class UserConnection {
                     getChannel().pipeline().fireChannelRead(buf);
                 }
             } else {
-                try {
-                    channel.eventLoop().submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (context != null) {
-                                context.fireChannelRead(buf);
-                            } else {
-                                getChannel().pipeline().fireChannelRead(buf);
-                            }
+                channel.eventLoop().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (context != null) {
+                            context.fireChannelRead(buf);
+                        } else {
+                            getChannel().pipeline().fireChannelRead(buf);
                         }
-                    });
-                } catch (Throwable t) {
-                    // Couldn't schedule
-                    buf.release();
-                    throw t;
-                }
+                    }
+                });
             }
         } finally {
             packet.release();

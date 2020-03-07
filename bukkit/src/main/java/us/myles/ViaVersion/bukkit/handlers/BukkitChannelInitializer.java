@@ -1,6 +1,7 @@
 package us.myles.ViaVersion.bukkit.handlers;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelBridge;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -13,18 +14,10 @@ import us.myles.ViaVersion.bukkit.classgenerator.HandlerConstructor;
 import java.lang.reflect.Method;
 
 public class BukkitChannelInitializer extends ChannelInitializer<SocketChannel> {
-
     private final ChannelInitializer<SocketChannel> original;
-    private Method method;
 
     public BukkitChannelInitializer(ChannelInitializer<SocketChannel> oldInit) {
         this.original = oldInit;
-        try {
-            this.method = ChannelInitializer.class.getDeclaredMethod("initChannel", Channel.class);
-            this.method.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
     }
 
     public ChannelInitializer<SocketChannel> getOriginal() {
@@ -37,7 +30,7 @@ public class BukkitChannelInitializer extends ChannelInitializer<SocketChannel> 
         // init protocol
         new ProtocolPipeline(info);
         // Add originals
-        this.method.invoke(this.original, socketChannel);
+        ChannelBridge.initChannel(socketChannel, this.original);
 
         HandlerConstructor constructor = ClassGenerator.getConstructor();
         // Add our transformers

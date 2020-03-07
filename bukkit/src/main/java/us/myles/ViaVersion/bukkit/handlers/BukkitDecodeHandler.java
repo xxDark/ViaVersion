@@ -3,6 +3,7 @@ package us.myles.ViaVersion.bukkit.handlers;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.internal.RecyclableArrayList;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.type.Type;
@@ -11,7 +12,6 @@ import us.myles.ViaVersion.packets.Direction;
 import us.myles.ViaVersion.protocols.base.ProtocolInfo;
 import us.myles.ViaVersion.util.PipelineUtil;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class BukkitDecodeHandler extends ByteToMessageDecoder {
@@ -27,7 +27,7 @@ public class BukkitDecodeHandler extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf bytebuf, List<Object> list) throws Exception {
         // use transformers
-        if (bytebuf.readableBytes() > 0) {
+        if (bytebuf.isReadable()) {
             // Ignore if pending disconnect
             if (info.isPendingDisconnect()) {
                 return;
@@ -68,11 +68,9 @@ public class BukkitDecodeHandler extends ByteToMessageDecoder {
 
             // call minecraft decoder
             try {
-                list.addAll(PipelineUtil.callDecode(this.minecraftDecoder, ctx, bytebuf));
-            } catch (InvocationTargetException e) {
-                if (e.getCause() instanceof Exception) {
-                    throw (Exception) e.getCause();
-                }
+                RecyclableArrayList decoded = PipelineUtil.callDecode(this.minecraftDecoder, ctx, bytebuf);
+                list.addAll(decoded);
+                decoded.recycle();
             } finally {
                 if (info.isActive()) {
                     bytebuf.release();

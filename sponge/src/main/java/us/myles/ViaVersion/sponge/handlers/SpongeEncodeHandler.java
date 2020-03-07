@@ -12,8 +12,6 @@ import us.myles.ViaVersion.packets.Direction;
 import us.myles.ViaVersion.protocols.base.ProtocolInfo;
 import us.myles.ViaVersion.util.PipelineUtil;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class SpongeEncodeHandler extends MessageToByteEncoder {
     private final UserConnection info;
     private final MessageToByteEncoder minecraftEncoder;
@@ -29,13 +27,7 @@ public class SpongeEncodeHandler extends MessageToByteEncoder {
         // handle the packet type
         if (!(o instanceof ByteBuf)) {
             // call minecraft encoder
-            try {
-                PipelineUtil.callEncode(this.minecraftEncoder, ctx, o, bytebuf);
-            } catch (InvocationTargetException e) {
-                if (e.getCause() instanceof Exception) {
-                    throw (Exception) e.getCause();
-                }
-            }
+            PipelineUtil.callEncode(this.minecraftEncoder, ctx, o, bytebuf);
         }
         if (bytebuf.readableBytes() == 0) {
             throw Via.getManager().isDebug() ? new CancelException() : CancelException.CACHED;

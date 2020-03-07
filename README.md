@@ -1,3 +1,6 @@
+**This is fork of ViaVersion that aims to fix all performance issues because of lack of knowledge of original developers.**  
+*Originally made for https://cristalix.ru*
+
 # ViaVersion 2.2.3 - Spigot, Sponge, BungeeCord, Velocity
 [![Build Status](https://travis-ci.com/ViaVersion/ViaVersion.svg?branch=master)](https://travis-ci.com/ViaVersion/ViaVersion)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-blue.svg)](https://viaversion.com/discord)
