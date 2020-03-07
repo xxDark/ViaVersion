@@ -1,4 +1,4 @@
-**This is fork of ViaVersion that aims to fix all performance issues because of lack of knowledge of original developers.**  
+**This is a fork of ViaVersion that aims to fix all performance issues because of lack of knowledge of original developers.**  
 *Originally made for https://cristalix.ru*
 
 # ViaVersion 2.2.3 - Spigot, Sponge, BungeeCord, Velocity
