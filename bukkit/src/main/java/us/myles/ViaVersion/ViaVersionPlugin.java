@@ -86,7 +86,7 @@ public class ViaVersionPlugin extends JavaPlugin implements ViaPlatform {
 
         // Generate classes needed (only works if it's compat or ps)
         ClassGenerator.generate();
-        lateBind = !BukkitViaInjector.isBinded();
+        lateBind = !BukkitViaInjector.isBound();
 
         getLogger().info("ViaVersion " + getDescription().getVersion() + (compatSpigotBuild ? "compat" : "") + " is now loaded" + (lateBind ? ", waiting for boot. (late-bind)" : ", injecting!"));
         if (!lateBind) {

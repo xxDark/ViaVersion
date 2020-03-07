@@ -24,7 +24,7 @@ import java.util.List;
 
 public class BukkitViaInjector implements ViaInjector {
     private final List<ChannelFuture> injectedFutures = Collections.synchronizedList(new ArrayList<ChannelFuture>());
-    private List<Pair<Field, Object>> injectedLists = Collections.synchronizedList(new ArrayList<Pair<Field, Object>>());
+    private final List<Pair<Field, Object>> injectedLists = Collections.synchronizedList(new ArrayList<Pair<Field, Object>>());
 
     @Override
     public void inject() throws Exception {
@@ -251,7 +251,7 @@ public class BukkitViaInjector implements ViaInjector {
         }
     }
 
-    public static boolean isBinded() {
+    public static boolean isBound() {
         try {
             Object connection = getServerConnection();
             if (connection == null) {
@@ -335,7 +335,7 @@ public class BukkitViaInjector implements ViaInjector {
             // Ignored, fields won't be present
         }
 
-        data.addProperty("binded", isBinded());
+        data.addProperty("binded", isBound());
         return data;
     }
 }
