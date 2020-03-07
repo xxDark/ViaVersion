@@ -23,8 +23,6 @@ public class BukkitViaBulkChunkTranslator extends BulkChunkTranslatorProvider {
             mapChunkBulkRef = new ReflectionUtil.ClassReflection(NMSUtil.nms("PacketPlayOutMapChunkBulk"));
             mapChunkRef = new ReflectionUtil.ClassReflection(NMSUtil.nms("PacketPlayOutMapChunk"));
             obfuscateRef = Class.forName("org.spigotmc.AntiXray").getMethod("obfuscate", int.class, int.class, int.class, byte[].class, NMSUtil.nms("World"));
-        } catch (ClassNotFoundException e) {
-            // Ignore as server is probably 1.9+
         } catch (Exception e) {
             Via.getPlatform().getLogger().log(Level.WARNING, "Failed to initialise chunks reflection", e);
         }

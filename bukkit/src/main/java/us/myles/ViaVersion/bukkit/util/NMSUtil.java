@@ -1,22 +1,28 @@
 package us.myles.ViaVersion.bukkit.util;
 
+import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.bukkit.Bukkit;
 
+@UtilityClass
 public class NMSUtil {
-    private static final String BASE;
-    private static  final String NMS;
+    private final String BASE;
+    private final  String NMS;
 
-    public static Class<?> nms(String className) throws ClassNotFoundException {
+    public Class<?> nms(String className) throws ClassNotFoundException {
         return Class.forName(NMS + "." + className);
     }
 
-    public static Class<?> obc(String className) throws ClassNotFoundException {
+    public Class<?> obc(String className) throws ClassNotFoundException {
         return Class.forName(BASE + "." + className);
     }
 
-    public static String getVersion() {
+    public String getVersion() {
         return BASE.substring(BASE.lastIndexOf('.') + 1);
+    }
+
+    public int getVersionInt() {
+        return Integer.parseInt(getVersion().split("_")[1], 10);
     }
 
     static {
