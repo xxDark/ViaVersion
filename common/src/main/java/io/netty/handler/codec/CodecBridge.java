@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
 import java.util.List;
 
 @UtilityClass
-public class CodecUtil {
+public class CodecBridge {
 	public void decode(ByteToMessageDecoder decoder, ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		decoder.decode(ctx, in, out);
 	}

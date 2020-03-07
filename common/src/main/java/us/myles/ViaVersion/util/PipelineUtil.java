@@ -4,16 +4,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.CodecUtil;
+import io.netty.handler.codec.CodecBridge;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.util.internal.RecyclableArrayList;
 import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 @UtilityClass
 public class PipelineUtil {
@@ -29,7 +26,7 @@ public class PipelineUtil {
      */
     public static RecyclableArrayList callDecode(ByteToMessageDecoder decoder, ChannelHandlerContext ctx, ByteBuf input) throws Exception {
         RecyclableArrayList output = RecyclableArrayList.newInstance(1);
-        CodecUtil.decode(decoder, ctx, input, output);
+        CodecBridge.decode(decoder, ctx, input, output);
         return output;
     }
 
@@ -43,12 +40,12 @@ public class PipelineUtil {
      * @throws InvocationTargetException If an exception happens while executing
      */
     public void callEncode(MessageToByteEncoder encoder, ChannelHandlerContext ctx, Object msg, ByteBuf output) throws Exception {
-        CodecUtil.encode(encoder, ctx, msg, output);
+        CodecBridge.encode(encoder, ctx, msg, output);
     }
 
     public RecyclableArrayList callDecode(MessageToMessageDecoder decoder, ChannelHandlerContext ctx, Object msg) throws Exception {
         RecyclableArrayList output = RecyclableArrayList.newInstance(1);
-        CodecUtil.decode(decoder,ctx, msg, output);
+        CodecBridge.decode(decoder,ctx, msg, output);
         return output;
     }
 
